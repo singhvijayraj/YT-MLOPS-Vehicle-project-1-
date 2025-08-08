@@ -1,0 +1,20 @@
+## pyproject.toml is a modern configuration file for Python packaging.
+# It replaces setup.py and setup.cfg for many projects.
+
+[project]
+name = "src"  # Name of your package (same as in setup.py)
+version = "0.0.1"  # Package version
+description = "An MLOps project for productionizing models"  # Short summary of your project
+authors = [
+    {name = "Vikash Das", email = "vikashdas770@gmail.com"}  # Author details
+]
+
+[tool.setuptools]
+# The packages key tells setuptools to find all packages automatically.
+packages = {find = {}}
+
+[tool.setuptools.dynamic]
+# Instead of writing dependencies here, we load them from requirements.txt.
+# This means whenever you update requirements.txt, your package dependencies are updated automatically.
+dependencies = {file = "requirements.txt"}
+
