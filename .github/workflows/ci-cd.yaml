@@ -22,7 +22,7 @@ jobs:
 
       # Step 3: Restart FastAPI app
       - name: Restart FastAPI app
-        shell: pwsh
+        shell: powershell
         run: |
           echo "Stopping old server if running..."
           try {
