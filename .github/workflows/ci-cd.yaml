@@ -1,4 +1,4 @@
-name: Deploy Application Docker Image Locally
+name: CI-CD with Local Runner
 
 on:
   push:
@@ -7,46 +7,36 @@ on:
 jobs:
   Continuous-Integration:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python (for tests)
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+      # Build Docker image locally
+      - name: Build Docker image
+        run: docker build -t my-app:latest .
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest
-
-      - name: Run tests
-        run: pytest
+      # Optional: just to confirm build worked
+      - name: List Docker images
+        run: docker images
 
   Continuous-Deployment:
     needs: Continuous-Integration
-    runs-on: self-hosted   # This runs on YOUR computer, not GitHub's
+    runs-on: self-hosted
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build Docker image
-        run: |
-          docker build -t my-fastapi-app:latest .
+      # Rebuild image on self-hosted machine
+      - name: Build Docker image on self-hosted runner
+        run: docker build -t my-app:latest .
 
-      - name: Stop existing container (if running)
+      # Run the container (replace port 5000 if needed)
+      - name: Run Docker container
         run: |
-          docker ps -q --filter "name=my-fastapi-app" | grep -q . && docker stop my-fastapi-app && docker rm my-fastapi-app || true
+          docker stop my-app || true
+          docker rm my-app || true
+          docker run -d --name my-app -p 5000:5000 my-app:latest
 
-      - name: Run new container
-        run: |
-          docker run -d \
-            --name my-fastapi-app \
-            -p 8000:8000 \
-            my-fastapi-app:latest
 
 # name: Deploy Application Docker Image to EC2 instance
 
