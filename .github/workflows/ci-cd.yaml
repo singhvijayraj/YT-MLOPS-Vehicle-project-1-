@@ -24,10 +24,15 @@ jobs:
 
       - name: Restart FastAPI app
         run: |
-          echo "Stopping old server if running..."
-          taskkill /F /IM python.exe || echo "No process was running"
-          echo "Starting FastAPI app with uvicorn..."
-          start /B uvicorn app:app --host 0.0.0.0 --port 8000
+         - name: Stop old server if running
+  run: |
+    echo "Stopping old server if running..."
+    try {
+        taskkill /F /IM python.exe
+    } catch {
+        echo "No process was running"
+    }
+
 
 
 
