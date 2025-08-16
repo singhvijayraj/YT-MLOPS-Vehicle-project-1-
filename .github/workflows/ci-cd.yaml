@@ -9,23 +9,30 @@ jobs:
     runs-on: self-hosted   # runs on your PC
 
     steps:
+      # Step 1: Checkout the latest code
       - name: Checkout latest code
         uses: actions/checkout@v4
 
-      # Skipped pip install because your PC already has everything installed
+      # Step 2: Optional - Activate virtual environment (uncomment if using venv)
+      # - name: Activate virtual environment
+      #   shell: pwsh
+      #   run: |
+      #     echo "Activating virtual environment..."
+      #     .\venv\Scripts\Activate.ps1
 
+      # Step 3: Restart FastAPI app
       - name: Restart FastAPI app
         shell: pwsh
         run: |
           echo "Stopping old server if running..."
           try {
-            taskkill /F /IM python.exe
+              taskkill /F /IM python.exe
           } catch {
-            echo "No process was running"
+              echo "No process was running"
           }
 
           echo "Starting FastAPI app in background..."
-          Start-Process python app.py
+          Start-Process -FilePath python -ArgumentList "app.py" -NoNewWindow
 
 
 # name: Deploy Application Docker Image to EC2 instance
