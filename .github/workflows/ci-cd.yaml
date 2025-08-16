@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted   # uses your own PC as the runner
+    runs-on: self-hosted   # runs on your PC
 
     steps:
       - name: Checkout latest code
@@ -15,25 +15,22 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12.4'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      # Skipped pip install because your PC already has everything installed
 
       - name: Restart FastAPI app
+        shell: pwsh
         run: |
-         - name: Stop old server if running
-  run: |
-    echo "Stopping old server if running..."
-    try {
-        taskkill /F /IM python.exe
-    } catch {
-        echo "No process was running"
-    }
+          echo "Stopping old server if running..."
+          try {
+            taskkill /F /IM python.exe
+          } catch {
+            echo "No process was running"
+          }
 
-
+          echo "Starting FastAPI app in background..."
+          Start-Process python app.py
 
 
 # name: Deploy Application Docker Image to EC2 instance
