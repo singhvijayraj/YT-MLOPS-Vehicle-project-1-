@@ -46,7 +46,10 @@ class Proj1Data:
 
             # Convert collection data to DataFrame and preprocess
             print("Fetching data from mongoDB")
-            df = pd.DataFrame(list(collection.find()))
+            # df = pd.DataFrame(list(collection.find()))
+            cursor = collection.find().batch_size(500)
+            df = pd.DataFrame(list(cursor))
+            cursor.close()
             print(f"Data fecthed with len: {len(df)}")
             if "id" in df.columns.to_list():
                 df = df.drop(columns=["id"], axis=1)

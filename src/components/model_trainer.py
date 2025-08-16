@@ -2,6 +2,7 @@ import sys
 from typing import Tuple
 
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
@@ -11,6 +12,7 @@ from src.utils.main_utils import load_numpy_array_data, load_object, save_object
 from src.entity.config_entity import ModelTrainerConfig
 from src.entity.artifact_entity import DataTransformationArtifact, ModelTrainerArtifact, ClassificationMetricArtifact
 from src.entity.estimator import MyModel
+from src.data_access.model_registry import ModelRegistry
 
 class ModelTrainer:
     def __init__(self, data_transformation_artifact: DataTransformationArtifact,
@@ -60,8 +62,9 @@ class ModelTrainer:
             recall = recall_score(y_test, y_pred)
 
             # Creating metric artifact
-            metric_artifact = ClassificationMetricArtifact(f1_score=f1, precision_score=precision, recall_score=recall)
-            return model, metric_artifact
+            metric_dict = {'accuracy': accuracy ,'f1' : f1 ,'precision':precision ,'recall' :recall}
+            metric_artifact = ClassificationMetricArtifact(accuracy=accuracy ,f1_score=f1, precision_score=precision, recall_score=recall)
+            return model, metric_artifact ,metric_dict
         
         except Exception as e:
             raise MyException(e, sys) from e
@@ -84,10 +87,10 @@ class ModelTrainer:
             logging.info("train-test data loaded")
             
             # Train model and get metrics
-            trained_model, metric_artifact = self.get_model_object_and_report(train=train_arr, test=test_arr)
+            trained_model, metric_artifact ,metric_dict = self.get_model_object_and_report(train=train_arr, test=test_arr)
             logging.info("Model object and artifact loaded.")
             
-            # Load preprocessing object
+            # # Load preprocessing object
             preprocessing_obj = load_object(file_path=self.data_transformation_artifact.transformed_object_file_path)
             logging.info("Preprocessing obj loaded.")
 
@@ -96,10 +99,17 @@ class ModelTrainer:
                 logging.info("No model found with score above the base score")
                 raise Exception("No model found with score above the base score")
 
-            # Save the final model object that includes both preprocessing and the trained model
+            # # Save the final model object that includes both preprocessing and the trained model
             logging.info("Saving new model as performace is better than previous one.")
             my_model = MyModel(preprocessing_object=preprocessing_obj, trained_model_object=trained_model)
             save_object(self.model_trainer_config.trained_model_file_path, my_model)
+             
+            #ModelRegistry.save_model(model = trained_model ,metrics= pd.to_dict(metric_artifact))
+
+            model_re = ModelRegistry()
+            model_re.compare_and_update_best(new_model = trained_model , new_metrics = metric_dict ,metric_key= 'accuracy',model_name='rf_model' ,metrics_name='rf_metrics')
+
+
             logging.info("Saved final model object that includes both preprocessing and the trained model")
 
             # Create and return the ModelTrainerArtifact
@@ -112,3 +122,10 @@ class ModelTrainer:
         
         except Exception as e:
             raise MyException(e, sys) from e
+        
+
+# train = ModelTrainer(DataTransformationArtifact,ModelTrainerConfig)
+# model_artifact = train.initiate_model_trainer()
+
+# print(model_artifact)
+

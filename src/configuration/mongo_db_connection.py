@@ -5,7 +5,11 @@ import certifi
 
 from src.exception import MyException
 from src.logger import logging
-from src.constants import DATABASE_NAME, MONGODB_URL_KEY
+from src.constants import DATABASE_NAME
+
+# Load variables from .env
+from pathlib import Path
+from dotenv import load_dotenv
 
 # Load the certificate authority file to avoid timeout errors when connecting to MongoDB
 ca = certifi.where()
@@ -44,11 +48,13 @@ class MongoDBClient:
             If there is an issue connecting to MongoDB or if the environment variable for the MongoDB URL is not set.
         """
         try:
+            env_path = Path(__file__).parent / "md.env"
+            load_dotenv(env_path)
             # Check if a MongoDB client connection has already been established; if not, create a new one
             if MongoDBClient.client is None:
-                mongo_db_url = os.getenv(MONGODB_URL_KEY)  # Retrieve MongoDB URL from environment variables
+                mongo_db_url = os.getenv('MONGODB_URL_KEY')  # Retrieve MongoDB URL from environment variables
                 if mongo_db_url is None:
-                    raise Exception(f"Environment variable '{MONGODB_URL_KEY}' is not set.")
+                    raise Exception(f"Environment variable 'MONGODB_URL_KEY' is not set.")
                 
                 # Establish a new MongoDB client connection
                 MongoDBClient.client = pymongo.MongoClient(mongo_db_url, tlsCAFile=ca)
@@ -62,3 +68,4 @@ class MongoDBClient:
         except Exception as e:
             # Raise a custom exception with traceback details if connection fails
             raise MyException(e, sys)
+

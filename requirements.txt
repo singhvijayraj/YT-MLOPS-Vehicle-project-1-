@@ -1,5 +1,7 @@
 dotenv
+dill
 ipykernel
+imbalanced-learn
 pandas
 numpy
 matplotlib

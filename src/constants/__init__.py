@@ -4,7 +4,7 @@ from datetime import date
 # For MongoDB connection
 DATABASE_NAME = "MLops-vehicale-insurance-proj1"
 COLLECTION_NAME = "proj1-Data"
-MONGODB_URL_KEY = "MONGODB_URL"
+# MONGODB_URL_KEY = "MONGODB_URL"
 
 PIPELINE_NAME: str = ""
 ARTIFACT_DIR: str = "artifact"
