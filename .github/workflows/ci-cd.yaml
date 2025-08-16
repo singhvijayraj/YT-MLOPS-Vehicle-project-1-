@@ -6,7 +6,7 @@ on:
 
 jobs:
   Continuous-Integration:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Rebuild image on self-hosted machine
+      # Rebuild image on self-hosted machine (optional if CI already did it)
       - name: Build Docker image on self-hosted runner
         run: docker build -t my-app:latest .
 
