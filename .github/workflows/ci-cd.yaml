@@ -6,33 +6,38 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted   # runs on your PC
+    runs-on: self-hosted   # your PC as runner
 
     steps:
-      # Step 1: Checkout the latest code
       - name: Checkout latest code
         uses: actions/checkout@v4
 
-      # Step 2: Optional - Activate virtual environment (uncomment if using venv)
-      # - name: Activate virtual environment
-      #   shell: pwsh
+      # Optional: Activate virtual environment if you have one
+      # - name: Activate venv
+      #   shell: powershell
       #   run: |
-      #     echo "Activating virtual environment..."
       #     .\venv\Scripts\Activate.ps1
 
-      # Step 3: Restart FastAPI app
-      - name: Restart FastAPI app
+      - name: Restart FastAPI app with logging
         shell: powershell
         run: |
+          $logFile = "$PSScriptRoot\fastapi.log"
+
           echo "Stopping old server if running..."
           try {
-              taskkill /F /IM python.exe
+              # Kill all python processes silently
+              taskkill /F /IM python.exe -ErrorAction SilentlyContinue
+              echo "Old server stopped (if it was running)" | Tee-Object -FilePath $logFile -Append
           } catch {
-              echo "No process was running"
+              echo "No python process was running" | Tee-Object -FilePath $logFile -Append
           }
 
           echo "Starting FastAPI app in background..."
-          Start-Process -FilePath python -ArgumentList "app.py" -NoNewWindow
+          # Start FastAPI in background, log output to file
+          $proc = Start-Process -FilePath python -ArgumentList "app.py" -NoNewWindow -PassThru
+          echo "FastAPI started with PID: $($proc.Id)" | Tee-Object -FilePath $logFile -Append
+          echo "Logs are being saved to: $logFile" | Tee-Object -FilePath $logFile -Append
+
 
 
 # name: Deploy Application Docker Image to EC2 instance
