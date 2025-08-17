@@ -9,16 +9,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12.4'
+
       - name: Install dependencies
         run: pip install -r requirements.txt
-      # - name: Run tests
-      #   run: pytest || echo "No tests found"
+
       - name: Ensure project root marker
         run: touch .project-root
+
+      - name: Verify MongoDB connection secret
+        env:
+          MONGODB_URL: ${{ secrets.MONGODB_URL_KEY }}
+        run: |
+          echo "Using MongoDB URL from secrets"
+          # Optional: Uncomment to verify connection if needed
+          # python -c "import os, pymongo; print(pymongo.MongoClient(os.environ['MONGODB_URL_KEY']).server_info())"
+
 
 
 
