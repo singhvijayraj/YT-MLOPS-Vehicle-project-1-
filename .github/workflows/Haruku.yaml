@@ -1,42 +1,69 @@
-name: CI-CD without Docker
+name: CI - FastAPI Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  deploy:
-    runs-on: self-hosted   # your PC as runner
-
+  test:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout latest code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      # - name: Run tests
+      #   run: pytest || echo "No tests found"
 
-      # Optional: Activate virtual environment if you have one
-      # - name: Activate venv
-      #   shell: powershell
-      #   run: |
-      #     .\venv\Scripts\Activate.ps1
 
-      - name: Restart FastAPI app with logging
-        shell: powershell
-        run: |
-          $logFile = "$PSScriptRoot\fastapi.log"
 
-          echo "Stopping old server if running..."
-          try {
-              # Kill all python processes silently
-              taskkill /F /IM python.exe -ErrorAction SilentlyContinue
-              echo "Old server stopped (if it was running)" | Tee-Object -FilePath $logFile -Append
-          } catch {
-              echo "No python process was running" | Tee-Object -FilePath $logFile -Append
-          }
 
-          echo "Starting FastAPI app in background..."
-          # Start FastAPI in background, log output to file
-          $proc = Start-Process -FilePath python -ArgumentList "app.py" -NoNewWindow -PassThru
-          echo "FastAPI started with PID: $($proc.Id)" | Tee-Object -FilePath $logFile -Append
-          echo "Logs are being saved to: $logFile" | Tee-Object -FilePath $logFile -Append
+
+
+
+
+# name: CI-CD without Docker
+
+# on:
+#   push:
+#     branches: [ "main" ]
+
+# jobs:
+#   deploy:
+#     runs-on: self-hosted   # your PC as runner
+
+#     steps:
+#       - name: Checkout latest code
+#         uses: actions/checkout@v4
+
+#       # Optional: Activate virtual environment if you have one
+#       # - name: Activate venv
+#       #   shell: powershell
+#       #   run: |
+#       #     .\venv\Scripts\Activate.ps1
+
+#       - name: Restart FastAPI app with logging
+#         shell: powershell
+#         run: |
+#           $logFile = "$PSScriptRoot\fastapi.log"
+
+#           echo "Stopping old server if running..."
+#           try {
+#               # Kill all python processes silently
+#               taskkill /F /IM python.exe -ErrorAction SilentlyContinue
+#               echo "Old server stopped (if it was running)" | Tee-Object -FilePath $logFile -Append
+#           } catch {
+#               echo "No python process was running" | Tee-Object -FilePath $logFile -Append
+#           }
+
+#           echo "Starting FastAPI app in background..."
+#           # Start FastAPI in background, log output to file
+#           $proc = Start-Process -FilePath python -ArgumentList "app.py" -NoNewWindow -PassThru
+#           echo "FastAPI started with PID: $($proc.Id)" | Tee-Object -FilePath $logFile -Append
+#           echo "Logs are being saved to: $logFile" | Tee-Object -FilePath $logFile -Append
 
 
 
